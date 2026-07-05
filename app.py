@@ -6,13 +6,16 @@ app = Flask(__name__)
 
 def fetch_product(barcode):
     url = f"https://world.openfoodfacts.org/api/v0/product/{barcode}.json"
+
     try:
         headers = {'User-Agent': 'InventoryManagerApp - WebCourseProject - Version 1.0'}
         response = requests.get(url, headers=headers, timeout=5)
         if response.status_code == 200:
             data = response.json()
+
             if data.get("status") == 1:
                 product_info = data.get("product", {})
+
                 return {
                     "product_name": product_info.get("product_name", "None"),
                     "brand": product_info.get("brands", "None"),
@@ -22,7 +25,6 @@ def fetch_product(barcode):
         print(f"External API Error: {e}")
     return None
 
-# Fix 2: Changed to a Dictionary structure to support your route logic
 products = {
     1: {
         "id": 1,
@@ -46,11 +48,11 @@ def get_product(id):
     product = products.get(id)
     if product:
         return jsonify(product), 200
-    # Fix 3: Wrapped error string in a proper key-value dictionary
+   
     return jsonify({"error": "Product not found"}), 404
 
 @app.route("/inventory", methods=["POST"])
-def create_product():  # Fix 4: Removed '(id)' parameter from here
+def create_product(): 
     data = request.get_json()
     if not data or "barcode" not in data or "price" not in data or "quantity" not in data:
         return jsonify({"error": "Missing required fields: barcode, price, quantity"}), 400
@@ -96,6 +98,7 @@ def update_item(id):
 def delete_item(id):
     if id in products:
         del products[id]
+        
         return jsonify({"message": f"Item {id} successfully deleted"}), 200
     return jsonify({"error": "Item not found"}), 404
 
