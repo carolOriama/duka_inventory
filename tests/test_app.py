@@ -90,7 +90,10 @@ def test_update_item_success(client):
     assert data["quantity"] == 60
     assert products[1]["price"] == 4.50 
 
+#DELETE    
+
 def test_delete_item_success(client):
     response = client.delete("/inventory/1")
     assert response.status_code == 200
     assert 1 not in products  
+
