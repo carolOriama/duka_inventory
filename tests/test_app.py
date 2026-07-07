@@ -66,3 +66,31 @@ def test_create_product_success(mock_get, client):
     assert data["id"] == 2
     assert data["product_name"] == "Mock Peanut Butter"
     assert products[2]["price"] == 2.50
+
+
+@patch("app.requests.get")
+def test_create_product_api_not_found(mock_get, client):
+    mock_get.return_value.status_code = 200
+    mock_get.return_value.json.return_value = {"status": 0} 
+
+    payload = {"barcode": "00000000", "price": 1.00, "quantity": 5}
+    response = client.post("/inventory", json=payload)
+    
+    assert response.status_code == 422
+    assert "error" in response.get_json()
+
+
+def test_update_item_success(client):
+    payload = {"price": 4.50, "quantity": 60}
+    response = client.patch("/inventory/1", json=payload)
+    
+    assert response.status_code == 200
+    data = response.get_json()
+    assert data["price"] == 4.50
+    assert data["quantity"] == 60
+    assert products[1]["price"] == 4.50 
+
+def test_delete_item_success(client):
+    response = client.delete("/inventory/1")
+    assert response.status_code == 200
+    assert 1 not in products  
